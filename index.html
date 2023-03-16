@@ -102,6 +102,7 @@
         const Tree = function() {
 
             this.root = null; //type Node
+            this.holder = null; //type Node
             this.buildTree = (x) => {
                 //[2,5,6,2,25,13]
 
@@ -145,40 +146,73 @@
             }
 
             compareNode = (node, input) => {
-                console.log(node);
-
                 //BASE CASE: once the direction I want to go has reached null
                 //recursion: keep going down direction of comparing input to node.value
-                if (node === null) {//reached empty
-                    return;
-                } else if (node.value === input) {
-                    console.log("Cannot add value as value already exists within tree");
-                } else if (node.value > input) {//input is smaller, go left
-                    compareNode(node.left, input);
-                } else if (node.value < input) {//input is larger, go right
-                    compareNode(node.right, input);
-                }
-            }
-
-            /*Write an insert and delete functions which accepts a value to insert/delete 
-            (you’ll have to deal with several USE CASES for delete -- 
-            such as when a node has children or not).*/
-            insertValue = (value) => {//should only add as a LEAF
-                //ex: add 69
-                //start at root
-                let startNode = this.root;
-                //check if value is greater/less than value at root
-                
+                //check if value is greater/less than value at root                
                 //if greater than, go .right (and if less than, go .left)
                 //repeat process until either 1) same value is found or 2) null is reached
                 //1) if same val found, return console.log("Cannot add value as value already exists within tree")
                 //2) if null is reached, take that current node (that you used to REACH null w/ .left/.right)
                 //and set respective .left/.right to newNode
+                if (node === null) {//reached empty
+                    let newNode = new Node(input);
+                    console.log("reached null, return");
+                    return newNode;
+                } else if (node.value === input) {
+                    console.log("Cannot add value as value already exists within tree");
+                } else if (node.value > input) {//input is smaller, go left
+                    node.left = compareNode(node.left, input);
+                } else if (node.value < input) {//input is larger, go right
+                    node.right = compareNode(node.right, input);
+                }
+                return node;
+            }
+
+            insertValue = (value) => {//should only add as a LEAF
+                //ex: add 69
+                let startNode = this.root;
                 compareNode(startNode, value);
             }
 
-            deleteValue = (value) => {
+            //start at root node; if value is less than root's, go left, else go right
+            //follow recursively until either 1) value is found
+            //2) no value is found, return null & console.log("This value does not exist within the tree")
+            //once value is found, assign the prior node's (before the leaf) .left/.right to be null
+            //BASE case: when node === null ? or when node.value === input
 
+            //when searching for node, write so that before another recursion occurs
+            //check the value of node.left/.right and see if it matches...?
+
+            removeLeaf = (node, input) => {
+                console.log(node);
+                if (node === null) {
+                    console.log("This value does not exist within the tree");
+                } else if (node.value > input) {//input smaller, go left
+                    if (node.left.value === input) {
+                        console.log("Found the value!");
+                        node.left = null;
+                    } else {
+                        removeLeaf(node.left, input);
+                    }                    
+                } else if (node.value < input) {//input larger, go right
+                    if (node.right.value === input) {
+                        console.log("Found the value!");
+                        node.right = null;
+                    } else {
+                        removeLeaf(node.right, input);
+                    }
+                }
+                return node;
+            }
+
+            /*Write delete function which accepts a value to delete 
+            (you’ll have to deal with several USE CASES for delete -- 
+            such as when a node has children or not).*/
+            deleteValue = (value) => {
+                //ex: delete 13 (NOT a leaf)
+                //ex: delete 25 (a leaf)
+                let startNode = this.root;
+                removeLeaf(startNode, value);
             }
 
         }
@@ -188,8 +222,10 @@
         test.buildTree(testArray);
         console.log(test.root);
         prettyPrint(test.root);
-        insertValue(69);
+        deleteValue(13);
+        /* insertValue(1); */
         prettyPrint(test.root);
+        console.log(test.root);
     </script>
 </body>
 </html>
