@@ -8,39 +8,151 @@
 </head>
 <body>
     <script>
-        const Node = function(x, y, z) {
-            this.value = x;
-            this.leftChildren = y; //type Node
-            this.rightChildren = z; //type Node
+
+        function mergeSort(array) {
+
+
+        //with -1 on the array stuff
+        function mergeAlgo(A, B, m, n) { //m = A.length, n = B.length
+            let i = j = 0;
+            let C = []; //empty array
+            while (i < m && j < n) {
+                if (A[i] < B[j]) {
+
+                    C.push(A[i]);
+                    i++;
+                    //C[k++] = A[i++];
+                } else {
+                    
+                    C.push(B[j]);
+                    j++;
+                    //C[k++] = B[j++];
+                }
+            }
+            
+            for (; i < m; i++) {
+                C.push(A[i]);
+                //C[k++] = A[i]; 
+            };
+            for (; j < n; j++) {
+                C.push(B[j]);
+                //C[k++] = B[j]; 
+            };
+            /* for (;i < m; i++) {
+                C.push(A[i]);
+                //C[k++] = A[i]; 
+            };
+            for (;j < n; n++) {
+                C.push(B[j]);
+                //C[k++] = B[j]; 
+            }; */
+            return C;
         }
 
-        const Tree = function(array) {
-            this.size = 0;
-            this.root = null;
-            this.buildTree = (array) => {
-                //[2,5,6,2]
-                //remove duplicate values
-                let startLength = array.length; //4; indices 0-3
-                let copyArray = array.slice();
-                for (let i = 0; i < startLength; i++) {
-                    for (let j = 0; j < array.length; j++) {
-                        if (copyArray[i] === array[j]) {
-                            console.log("spliced @ index " + j);
-                            console.log("spliced value " + array[j]);
-                            array.splice(j, 1);
-                        }
-                    }
-                }
-                console.log(array);
+        if (array.length === 1) {
+            return array;
+        } else {
+            // #1 separate an array into halves
+            // #2 
+            // #3 weave them together
 
+            // #1
+            let length = array.length; //ex: 5 [0,1,2,3,4]
+            let start = mid1 = 0;
+            let halfway = length/2; //5 div 2 == 2.5
+            if (!Number.isInteger(halfway)) {
+                mid1 = Math.floor(halfway); //2; round down to split odd numbered arrays
+            } else {
+                mid1 = halfway;
+            }
+            let end = length; //5
+            let firstHalf = array.slice(start, mid1);
+            let secondHalf = array.slice(mid1, end);
 
+            //splits original array in halves, UNSORTED
 
-                return;
+            // #2 
+            // sort each array
+            let sortedFirstHalf = mergeSort(firstHalf);
+            let sortedSecondHalf = mergeSort(secondHalf);
+
+            // #3
+            // Two sorted, now merge
+
+            let holderArray = mergeAlgo(sortedFirstHalf, sortedSecondHalf, sortedFirstHalf.length, sortedSecondHalf.length);
+            //return mergeSort();//doing this will cause SOF - array length will NOT change and base case won't be reached
+
+            return holderArray;
             }
         }
 
-        const test = new Tree([2,5,6,2]);
-        test.buildTree
+        const Node = function(x) {
+            this.value = x;
+            this.left = null; //type Node
+            this.right = null; //type Node
+
+            /* this.setLeft = (lNode) => {
+                this.left = lNode;
+            }
+            this.setRight = (rNode) => {
+                this.right = rNode;
+            } */
+        }
+
+        const Tree = function() {
+
+            this.size = 0;
+            this.root = null; //type Node
+            this.buildTree = (x) => {
+                //[2,5,6,2,25,13]
+
+                //remove duplicate values
+                let noRepeats = x.filter((value, index, array) => array.indexOf(value) === index);
+                //filtered: [2,5,6,25,13];
+                //sort low to high
+                let sortedFiltered = mergeSort(noRepeats);
+                //sorted: [2,5,6,13,25]
+
+                let start = 0;
+                let end = sortedFiltered.length-1; //4; 0-based index
+
+                function createBST(rArray, rStart, rEnd) {
+                    //array is sortedFiltered
+                    //rStart begins with 0, rEnd begins with value of 4
+                    if (rStart > rEnd) {
+                        return null;
+                    } 
+                    let rMid = Math.floor((rStart + rEnd)/2);
+
+                    let newNode = new Node(rArray[rMid]);
+                    newNode.left = (createBST(rArray, rStart, rMid-1));
+                    newNode.right = (createBST(rArray, rMid+1, rEnd));
+                    
+                    this.root = newNode;
+                    this.size++;
+                    return newNode;
+                }
+                this.root = createBST(sortedFiltered, start, end);
+                return this.root;
+            }//end of buildTree fxn
+
+            //This function will expect to receive the root of 
+            //your tree as the value for the node parameter.
+            this.prettyPrint = (node, prefix = '', isLeft = true) => {
+                if (node.right !== null) {
+                    prettyPrint(node.right, `${prefix}${isLeft ? '│   ' : '    '}`, false);
+                }
+                console.log(`${prefix}${isLeft ? '└── ' : '┌── '}${node.data}`);
+                if (node.left !== null) {
+                    prettyPrint(node.left, `${prefix}${isLeft ? '    ' : '│   '}`, true);
+                }
+            }
+        }
+        const testArray = [2,5,6,2,25,13];
+        const test = new Tree();
+        test.buildTree(testArray);
+        console.log(test.root);
+        test.prettyPrint(test.root);
     </script>
 </body>
 </html>
