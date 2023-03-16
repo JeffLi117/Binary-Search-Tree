@@ -102,7 +102,9 @@
         const Tree = function() {
 
             this.root = null; //type Node
-            this.holder = null; //type Node
+            this.nodeHolder1 = null; //type Node
+            this.nodeHolder2 = null; //type Node
+            this.nodeHolder3 = null; //type Node
             this.buildTree = (x) => {
                 //[2,5,6,2,25,13]
 
@@ -210,7 +212,7 @@
             //when searching for node, write so that before another recursion occurs
             //check the value of node.left/.right and see if it matches...?
 
-            removeLeaf = (node, input) => {
+            removeLeaf = (node, input) => {//jank code with a lot of if/else's
                 console.log(node);
                 if (node.value > input) {//input smaller, go left
                     //node.left = removeLeaf(node.left, input);
@@ -243,7 +245,79 @@
                 //ex: delete 13 (NOT a leaf)
                 //ex: delete 25 (a leaf)
                 let startNode = this.root;
-                removeLeaf(startNode, value);
+                //removeLeaf(startNode, value);
+                removeAlgo(startNode, value);
+            }
+
+            removeAlgo = (node, input) => {
+                //for leaf
+                //BASE CASE, ideally, is when recursion has gotten to node.value === input
+                //can make that base case return null
+                //for non-leaf scenarios: BASE CASE is same
+                //ideally would use 3 holders, one for the node BEFORE base case is reached, target node, and
+                //one holder to be set at base case node.left/.right
+
+                console.log(node);
+                if (node === null) {//for leaf node
+                    console.log("Number not found in tree");
+                    return null;
+                } else if (node.value === input) {
+                    if (node.right === null && node.left === null) {//there are NO children; leaf node scenario
+                        console.log("Hit base case");
+                        return null;
+                    } else if (node.right !== null) {//1 right child leaf present
+                        this.nodeHolder2 = node;
+                        this.nodeHolder3 = node.right;
+                        return;
+                    } else if (node.left !== null) {//1 left child leaf present
+                        this.nodeHolder2 = node;
+                        this.nodeHolder3 = node.left;
+                        return;
+                    }
+                } else if (node.value > input) {//input smaller, go left
+                    if (node.left.value === input) {
+                        console.log("nodeHolder 1 set here");
+                        this.nodeHolder1 = node;
+                    }
+                    node.left = removeAlgo(node.left, input);
+                    /* if (node.left === null) {
+                        console.log("This value does not exist within the tree");
+                    } else if (node.left.value === input) {
+                        console.log("Found the value!");
+                        node.left = null;
+                    } else {
+                        node.left = removeLeaf(node.left, input);
+                    }       */              
+                } else if (node.value < input) {//input larger, go right
+                    if (node.right.value === input) {
+                        console.log("nodeHolder 1 set here");
+                        this.nodeHolder1 = node;
+                    }
+                    node.right = removeAlgo(node.right, input);
+                    
+                    
+                    /* if (node.right === null) {
+                        console.log("This value does not exist within the tree");
+                    } else if (node.right.value === input) {
+                        console.log("Found the value!");
+                        node.right = null;
+                    } else {
+                        node.right = removeLeaf(node.right, input);
+                    }    */
+                } 
+                
+                console.log(this.nodeHolder1);
+                console.log(this.nodeHolder2);
+                console.log(this.nodeHolder3);
+
+                if (node === this.nodeHolder1) {
+                    if (this.nodeHolder1.value < this.nodeHolder2.value) {
+                        this.nodeHolder1.right = this.nodeHolder3;
+                    } else {
+                        this.nodeHolder1.left = this.nodeHolder3;
+                    }
+                }
+                return node;
             }
 
         }
@@ -255,7 +329,7 @@
         prettyPrint(test.root);
         //checkIfPresent(100);
         //console.log(checkIfPresent(100));
-        deleteValue(42); //currently code will break if val here is NOT within tree
+        deleteValue(25); //currently code will break if val here is NOT within tree
         //insertValue(1);
         prettyPrint(test.root);
         console.log(test.root);
