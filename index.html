@@ -105,6 +105,7 @@
             this.nodeHolder1 = null; //type Node
             this.nodeHolder2 = null; //type Node
             this.nodeHolder3 = null; //type Node
+            this.boolean = null;
             this.buildTree = (x) => {
                 //[2,5,6,2,25,13]
 
@@ -180,22 +181,29 @@
                 console.log(node);
                 if (node === null) {
                     console.log("Hit null; value is not within tree");
-                    return false;
+                    this.boolean = false;
+                    return;
+                } else if (node.value === input) {
+                    console.log("found value");
+                    this.boolean = true;
                 } else if (node.value > input) {//input is smaller, go left
                     if (node.left === null) {
                         console.log("node.left equalled null, value is lower than what is in tree");
-                        return false;
+                        this.boolean = false;
+                        return;
                     } else {
                         contains(node.left, input);
                     }
                 } else if (node.value < input) {//input is larger, go right
                     if (node.right === null) {
                         console.log("node.right equalled null, value is higher than what is in tree");
-                        return false;
+                        this.boolean = false;
+                        return;
                     } else {
                         contains(node.right, input);
                     }
                 }
+                return this.boolean;
             }
 
             checkIfPresent = (value) => {//should return boolean true/false
@@ -242,11 +250,16 @@
             (you’ll have to deal with several USE CASES for delete -- 
             such as when a node has children or not).*/
             deleteValue = (value) => {
-                //ex: delete 13 (NOT a leaf)
-                //ex: delete 25 (a leaf)
-                let startNode = this.root;
-                //removeLeaf(startNode, value);
-                removeAlgo(startNode, value);
+                if (!checkIfPresent(value)) {
+                    console.log("Cannot delete as value is not within tree");
+                } else {
+                    //ex: delete 13 (NOT a leaf)
+                    //ex: delete 25 (a leaf)
+                    let startNode = this.root;
+                    //removeLeaf(startNode, value);
+                    removeAlgo(startNode, value);
+                }
+                
             }
 
             removeAlgo = (node, input) => {
@@ -310,7 +323,9 @@
                 console.log(this.nodeHolder2);
                 console.log(this.nodeHolder3);
 
-                if (node === this.nodeHolder1) {
+                if (node === this.nodeHolder1 && (this.nodeHolder2 !== null && this.nodeHolder3 !== null)) {
+                    //makes sure that nodeHolders 2 & 3 are assigned
+                    //means that the algorithm went through scenario of 1 child leaf (target node 2 sandwiched)
                     if (this.nodeHolder1.value < this.nodeHolder2.value) {
                         this.nodeHolder1.right = this.nodeHolder3;
                     } else {
@@ -327,9 +342,8 @@
         test.buildTree(testArray);
         console.log(test.root);
         prettyPrint(test.root);
-        //checkIfPresent(100);
-        //console.log(checkIfPresent(100));
-        deleteValue(25); //currently code will break if val here is NOT within tree
+        //console.log(checkIfPresent(25));
+        deleteValue(37); //currently code will break if val here is NOT within tree
         //insertValue(1);
         prettyPrint(test.root);
         console.log(test.root);
