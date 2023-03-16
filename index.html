@@ -212,14 +212,11 @@
 
             removeLeaf = (node, input) => {
                 console.log(node);
-                if (node === null) {
-                    console.log("This value does not exist within the tree");
-                    return null;
-                } else if (node.value === input) {
-                    console.log("Finally matched");
-                } else if (node.value > input) {//input smaller, go left
+                if (node.value > input) {//input smaller, go left
                     //node.left = removeLeaf(node.left, input);
-                    if (node.left.value === input) {
+                    if (node.left === null) {
+                        console.log("This value does not exist within the tree");
+                    } else if (node.left.value === input) {
                         console.log("Found the value!");
                         node.left = null;
                     } else {
@@ -227,7 +224,9 @@
                     }                    
                 } else if (node.value < input) {//input larger, go right
                     //node.right = removeLeaf(node.right, input);
-                    if (node.right.value === input) {
+                    if (node.right === null) {
+                        console.log("This value does not exist within the tree");
+                    } else if (node.right.value === input) {
                         console.log("Found the value!");
                         node.right = null;
                     } else {
@@ -254,11 +253,11 @@
         test.buildTree(testArray);
         console.log(test.root);
         prettyPrint(test.root);
-        checkIfPresent(100);
+        //checkIfPresent(100);
         //console.log(checkIfPresent(100));
-        //deleteValue(25); //currently code will break if val here is NOT within tree
+        deleteValue(42); //currently code will break if val here is NOT within tree
         //insertValue(1);
-        //prettyPrint(test.root);
+        prettyPrint(test.root);
         console.log(test.root);
     </script>
 </body>
