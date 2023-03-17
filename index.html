@@ -90,13 +90,6 @@
             this.value = x;
             this.left = null; //type Node
             this.right = null; //type Node
-
-            /* this.setLeft = (lNode) => {
-                this.left = lNode;
-            }
-            this.setRight = (rNode) => {
-                this.right = rNode;
-            } */
         }
 
         const Tree = function() {
@@ -178,13 +171,13 @@
             }
 
             contains = (node, input) => {
-                console.log(node);
+                //console.log(node);
                 if (node === null) {
-                    console.log("Hit null; value is not within tree");
+                    //console.log("Hit null; value is not within tree");
                     this.boolean = false;
                     return;
                 } else if (node.value === input) {
-                    console.log("found value");
+                    //console.log("found value");
                     this.boolean = true;
                 } else if (node.value > input) {//input is smaller, go left
                     if (node.left === null) {
@@ -212,9 +205,9 @@
             }
 
             whichNode = (node, input) => {
-                console.log(node);
+                //console.log(node);
                 if (node.value === input) {
-                    console.log("found value");
+                    //console.log("found value");
                     this.nodeHolder1 = node;
                 } else if (node.value > input) {//input is smaller, go left
                     whichNode(node.left, input);
@@ -362,63 +355,246 @@
                 console.log(node.value);
             }
 
-            /*Write a levelOrder function which accepts another function as a parameter. 
-            levelOrder should traverse the tree in breadth-first level order and provide 
-            each node as the argument to the provided function. 
-            This function can be implemented using either iteration or recursion 
-            (try implementing both!). The method should return an array of values 
-            if no function is given. Tip: You will want to use an array acting as 
-            a queue to keep track of all the child nodes that you have yet to 
-            traverse and to add new ones to the list */
 
-            levelOrderRecursion = (node, array, funct) => {
-                array.push(node); //first, push current node onto Q
-                if (node === null) {
-                    console.log("reached an end");
+            heightOfNodeOfVal = (nodeValue) => {
+                console.log("nodeValue is: ", nodeValue);
+                //input is a node's value, check if node w/ that val exists in tree
+                if (!checkIfPresent(nodeValue)) {
+                    console.log("A node with that value does not exist, therefore height cannot be found");
                     return;
                 } else {
-                    //access current node value
-                    console.log(node.value);
-                    //add node's children leaves to Q
-                    if (node.right !== null) {
-                        console.log(node.right);
-                        array.push(node.right);
-                        //levelOrderRecursion(node.right, array, funct);
-                        //currently this method will push all the R side then L side, DEPTH-first
-                    } 
-                    
-                    if (node.left !== null) {
-                        console.log(node.left);
-                        array.push(node.left);
-                        //levelOrderRecursion(node.left, array, funct);
+                    //start at this.root (startNode)
+                    let startNode = this.root;
+                    //set targetNode
+                    let targetNode = whichNode(startNode, nodeValue); //returns node matching inputted value
+                    //set heightValHolder
+                    let heightHolder = 0;
+                    let height = heightAdderFunct(targetNode, heightHolder);
+                    //console.log(height);
+                    return height;
+                }
+            }
+
+            heightAdderFunct = (node, heightHolder) => {//AKA counting "deepest" # of children
+                //node = targetNode
+                console.log(node);
+                console.log("heightHolder is: ", heightHolder, "for target");
+
+                if (node.right === null && node.left === null) {
+                    console.log("Hit a dead end leaf");
+                    return heightHolder;
+                } else {
+                    heightHolder++;
+                    if (node.left) {//there is a child node to left
+                        
+                        heightAdderFunct(node.left, heightHolder);
                     }
-                    //remove parent node from Q
-                    array.shift();
+                    if (node.right) {//child node to right
+        
+                        heightAdderFunct(node.right, heightHolder);
+                    } 
+                }
+                console.log("End heightHolder is: ", heightHolder);
+                return heightHolder;
+            }
+
+            
+            //first input is startNode
+            //put root node into Q
+            //access root node
+            //check if node has children left or right
+            //if they exist, enQ that node's children, L to R
+            //deQ said node
+            //access L child node, repeat enQ-ing for their children nodes
+            //deQ first L child node
+            //access R child node, repeat enQ-ing
+            //deQ first R child node
+
+            depthOfNodeOfVal = (nodeValue) => {//input is a node's value
+                //use algorithm similar to levelOrderWithin
+                //every time you have to add children leaves to Q
+                //increase depth (but make sure it's only adding +1 even if you add 2 children)
+                //when that iteration/node within Q matches node input
+                //return depth value //type Number
+
+                //use fxn to check if node exists within tree first
+                if (!checkIfPresent(nodeValue)) {
+                    console.log("A node with that value does not exist, therefore depth cannot be found");
+                    return;
+                } else {
+                    //start at this.root (startNode)
+                    let startNode = this.root;
+                    //set targetNode
+                    let targetNode = whichNode(startNode, nodeValue); //returns node MATCHING said value
+                    //set depthValHolder
+                    let depthValHolder = 0;
+                    let depth = depthAdderFunct(startNode, targetNode, targetNode.value, depthValHolder);
+                    //console.log(depth);
+                    return depth;
+                }
+            }
+
+            depthAdderFunct = (node1, node2, value, depthHolder) => {
+                //node1 = startNode
+                //node2 = targetNode
+                /* console.log(node1);
+                console.log(depthHolder); */
+                if (node1 === node2) {
+                    console.log("found matching Node");
+                    return depthHolder;
+                } else if (node1.value > value) {//input value is smaller, go left
+                    depthHolder++;
+                    return depthAdderFunct(node1.left, node2, value, depthHolder);
+                } else if (node1.value < value) {//input value is larger, go right
+                    depthHolder++;
+                    return depthAdderFunct(node1.right, node2, value, depthHolder);
+                }
+                return depthHolder;
+            }
+
+            levelOrderWithin = (node, array, funct) => {
+                let arrayOfValues = [];
+                array.push(node); //push first node (startNode/root)
+                if (!funct) {//if no function given, just start making array of values
+                    arrayOfValues.push(node.value);
+                }
+
+                //----------------
+                //everything within this part, I want to do again
+                //for each node I access within the Q
+                let i = 0;
+                do {
+                    let doNode = array[i]; //type Node
+                    console.log("for this iteration, node value is ");
+                    if (funct) {
+                        funct(doNode);
+                        //do something with node value/data if funct is given
+                    }
+                    if (doNode.left !== null) {
+                        console.log(doNode.left);
+                        console.log("node to the left: ", doNode.left);
+                        if (!funct) {//if no function given,  array of values
+                            arrayOfValues.push(doNode.left.value);
+                        }
+                        array.push(doNode.left);
+                    }
+                    if (doNode.right !== null) {
+                        console.log(doNode.right);
+                        console.log("node to the right: ", doNode.right);
+                        if (!funct) {//if no function given, add to array of values
+                            arrayOfValues.push(doNode.right.value);
+                        }
+                        array.push(doNode.right);
+                    }
+                    //moves to next node in Q
+                    i++;
+                } while (i < array.length)
+                return arrayOfValues;
+            }
+            
+            levelOrder = (somefunction) => {
+                let startNode = this.root;
+                let queueArray = [];
+                levelOrderWithin(startNode, queueArray, somefunction);
+            }
+
+            preOrderWithin = (node, array, somefunct1) => {
+                //node will be startNode
+                if (node === null) {
+                    return;
+                } else {
+                    if (somefunct1) {
+                        console.log("this node's value is: ");
+                        somefunct1(node);
+                    } else {//no function, add it to array (of vals)
+                        array.push(node.value);
+                    }
+                    preOrderWithin(node.left, array, somefunct1);
+                    preOrderWithin(node.right, array, somefunct1);
                 }
                 return array;
             }
 
-            levelOrder = (somefunction) => {
+            preOrder = (somefunct) => {
                 let startNode = this.root;
-                let queueArray = [];
+                let arrayOfValues = [];
+                preOrderWithin(startNode, arrayOfValues, somefunct);
+                if (!somefunct) {
+                    return arrayOfValues;
+                }
+            }
 
-                console.log(levelOrderRecursion(startNode, queueArray, somefunction));
-                return queueArray;
+            inOrderWithin = (node, array, somefunct1) => {
+                //node will be startNode
+                if (node === null) {
+                    return;
+                } else {
+                    inOrderWithin(node.left, array, somefunct1);
+                    if (somefunct1) {
+                        console.log("this node's value is: ");
+                        somefunct1(node);
+                    } else {//no function, add it to array (of vals)
+                        array.push(node.value);
+                    }
+                    inOrderWithin(node.right, array, somefunct1);
+                }
+                return array;
+            }
+
+            inOrder = (somefunct) => {
+                let startNode = this.root;
+                let arrayOfValues = [];
+                inOrderWithin(startNode, arrayOfValues, somefunct);
+                if (!somefunct) {
+                    return arrayOfValues;
+                }
+            }
+
+            postOrderWithin = (node, array, somefunct1) => {
+                //node will be startNode
+                if (node === null) {
+                    return;
+                } else {
+                    postOrderWithin(node.left, array, somefunct1);
+                    postOrderWithin(node.right, array, somefunct1);
+                    if (somefunct1) {
+                        console.log("this node's value is: ");
+                        somefunct1(node);
+                    } else {//no function, add it to array (of vals)
+                        array.push(node.value);
+                    }
+                }
+                return array;
+            }
+
+            postOrder = (somefunct) => {
+                let startNode = this.root;
+                let arrayOfValues = [];
+                postOrderWithin(startNode, arrayOfValues, somefunct);
+                if (!somefunct) {
+                    return arrayOfValues;
+                }
             }
 
         }
         
-        const testArray = [2,5,6,2,25,13];
+        const testArray = [2,5,6,8,99,2,25,13,42];
         const test = new Tree();
         test.buildTree(testArray);
         console.log(test.root);
         prettyPrint(test.root);
+        console.log("height of node val is: ", heightOfNodeOfVal(25));
+        //insertValue(9); //will not add duplicates; adds as leaf
+        //console.log("depth of node val is: ", depthOfNodeOfVal(25));
         //console.log(checkIfPresent(25)); //returns a boolean true/false
         //deleteValue(13); //currently code will break if val here is NOT within tree
-        //insertValue(13); //will not add duplicates; adds as leaf
+        
         //console.log(findNode(13)); //returns node with inputted value or undefined if not there
-
-        //console.log(levelOrder());
+        //levelOrder(testFunctionConsoleSelf); breadth-first; if no function given, returns array of vals
+        //console.log(preOrder(testFunctionConsoleSelf));//preOrder algo to apply fxn; if no fxn, return AoV
+        //console.log(inOrder());//inOrder algo to apply fxn; if no fxn, return AoV **will be SORTED order
+        //postOrder(testFunctionConsoleSelf)
+        //console.log(postOrder(testFunctionConsoleSelf));//postOrder algo to apply fxn; if no fxn, return AoV
         /* prettyPrint(test.root);
         console.log(test.root); */
     </script>
