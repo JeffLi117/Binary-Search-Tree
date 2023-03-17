@@ -355,6 +355,41 @@
                 console.log(node.value);
             }
 
+            createLevOrderQ = (node, array) => {
+                array.push(node); //push first node (startNode/root)
+                
+
+                //----------------
+                //everything within this part, I want to do again
+                //for each node I access within the Q
+                let i = 0;
+                do {
+                    let doNode = array[i]; //type Node
+                    /* console.log("for this iteration, node value is "); */
+                    if (doNode.left !== null) {
+                        /* console.log(doNode.left);
+                        console.log("node to the left: ", doNode.left); */
+                        array.push(doNode.left);
+                    }
+                    if (doNode.right !== null) {
+                        /* console.log(doNode.right);
+                        console.log("node to the right: ", doNode.right); */
+                        array.push(doNode.right);
+                    }
+                    //moves to next node in Q
+                    i++;
+                } while (i < array.length)
+                return array;
+            }
+            
+            createLevOrder = (somefunction) => {
+                let startNode = this.root;
+                let queueArray = [];
+                return createLevOrderQ(startNode, queueArray, somefunction);
+            }
+            //start @ root node
+            //find height of L subtree
+            //find height of R subtree
 
             heightOfNodeOfVal = (nodeValue) => {
                 console.log("nodeValue is: ", nodeValue);
@@ -368,10 +403,16 @@
                     //set targetNode
                     let targetNode = whichNode(startNode, nodeValue); //returns node matching inputted value
                     //set heightValHolder
-                    let heightHolder = 0;
-                    let height = heightAdderFunct(targetNode, heightHolder);
+                    
+                    let Q = createLevOrder();//creates Q of breadth-first traversal
+                    console.log(Q);
+
+
+
+                    //let heightHolder = 0;
+                    //let height = heightAdderFunct(targetNode, heightHolder);
                     //console.log(height);
-                    return height;
+                    //return height;
                 }
             }
 
@@ -473,7 +514,7 @@
                     if (doNode.left !== null) {
                         console.log(doNode.left);
                         console.log("node to the left: ", doNode.left);
-                        if (!funct) {//if no function given,  array of values
+                        if (!funct) {//if no function given, array of values
                             arrayOfValues.push(doNode.left.value);
                         }
                         array.push(doNode.left);
@@ -495,7 +536,7 @@
             levelOrder = (somefunction) => {
                 let startNode = this.root;
                 let queueArray = [];
-                levelOrderWithin(startNode, queueArray, somefunction);
+                return levelOrderWithin(startNode, queueArray, somefunction);
             }
 
             preOrderWithin = (node, array, somefunct1) => {
@@ -583,13 +624,18 @@
         test.buildTree(testArray);
         console.log(test.root);
         prettyPrint(test.root);
-        console.log("height of node val is: ", heightOfNodeOfVal(25));
+
+        heightOfNodeOfVal(25);
+        //console.log("height of node val is: ", heightOfNodeOfVal(25));
+
+
         //insertValue(9); //will not add duplicates; adds as leaf
-        //console.log("depth of node val is: ", depthOfNodeOfVal(25));
+        //console.log("depth of node val is: ", depthOfNodeOfVal(6));
         //console.log(checkIfPresent(25)); //returns a boolean true/false
         //deleteValue(13); //currently code will break if val here is NOT within tree
         
         //console.log(findNode(13)); //returns node with inputted value or undefined if not there
+        //console.log(levelOrder());
         //levelOrder(testFunctionConsoleSelf); breadth-first; if no function given, returns array of vals
         //console.log(preOrder(testFunctionConsoleSelf));//preOrder algo to apply fxn; if no fxn, return AoV
         //console.log(inOrder());//inOrder algo to apply fxn; if no fxn, return AoV **will be SORTED order
