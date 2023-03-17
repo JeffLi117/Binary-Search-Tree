@@ -211,6 +211,29 @@
                 return contains(startNode, value);
             }
 
+            whichNode = (node, input) => {
+                console.log(node);
+                if (node.value === input) {
+                    console.log("found value");
+                    this.nodeHolder1 = node;
+                } else if (node.value > input) {//input is smaller, go left
+                    whichNode(node.left, input);
+                } else if (node.value < input) {//input is larger, go right
+                    whichNode(node.right, input);
+                }
+                return this.nodeHolder1;
+            }
+
+            findNode = (value) => {
+                let startNode = this.root;
+                if (!contains(startNode, value)) {
+                    console.log("Unable to find Node with given value");
+                    return undefined;
+                } else {
+                    return whichNode(startNode, value);
+                }
+            }
+
             //start at root node; if value is less than root's, go left, else go right
             //follow recursively until either 1) value is found
             //2) no value is found, return null & console.log("This value does not exist within the tree")
@@ -335,6 +358,54 @@
                 return node;
             }
 
+            testFunctionConsoleSelf = (node) => {
+                console.log(node.value);
+            }
+
+            /*Write a levelOrder function which accepts another function as a parameter. 
+            levelOrder should traverse the tree in breadth-first level order and provide 
+            each node as the argument to the provided function. 
+            This function can be implemented using either iteration or recursion 
+            (try implementing both!). The method should return an array of values 
+            if no function is given. Tip: You will want to use an array acting as 
+            a queue to keep track of all the child nodes that you have yet to 
+            traverse and to add new ones to the list */
+
+            levelOrderRecursion = (node, array, funct) => {
+                array.push(node); //first, push current node onto Q
+                if (node === null) {
+                    console.log("reached an end");
+                    return;
+                } else {
+                    //access current node value
+                    console.log(node.value);
+                    //add node's children leaves to Q
+                    if (node.right !== null) {
+                        console.log(node.right);
+                        array.push(node.right);
+                        //levelOrderRecursion(node.right, array, funct);
+                        //currently this method will push all the R side then L side, DEPTH-first
+                    } 
+                    
+                    if (node.left !== null) {
+                        console.log(node.left);
+                        array.push(node.left);
+                        //levelOrderRecursion(node.left, array, funct);
+                    }
+                    //remove parent node from Q
+                    array.shift();
+                }
+                return array;
+            }
+
+            levelOrder = (somefunction) => {
+                let startNode = this.root;
+                let queueArray = [];
+
+                console.log(levelOrderRecursion(startNode, queueArray, somefunction));
+                return queueArray;
+            }
+
         }
         
         const testArray = [2,5,6,2,25,13];
@@ -342,11 +413,14 @@
         test.buildTree(testArray);
         console.log(test.root);
         prettyPrint(test.root);
-        //console.log(checkIfPresent(25));
-        deleteValue(37); //currently code will break if val here is NOT within tree
-        //insertValue(1);
-        prettyPrint(test.root);
-        console.log(test.root);
+        //console.log(checkIfPresent(25)); //returns a boolean true/false
+        //deleteValue(13); //currently code will break if val here is NOT within tree
+        //insertValue(13); //will not add duplicates; adds as leaf
+        //console.log(findNode(13)); //returns node with inputted value or undefined if not there
+
+        //console.log(levelOrder());
+        /* prettyPrint(test.root);
+        console.log(test.root); */
     </script>
 </body>
 </html>
