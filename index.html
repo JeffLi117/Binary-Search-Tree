@@ -403,40 +403,47 @@
                     //set targetNode
                     let targetNode = whichNode(startNode, nodeValue); //returns node matching inputted value
                     //set heightValHolder
-                    
+                    /* 
                     let Q = createLevOrder();//creates Q of breadth-first traversal
-                    console.log(Q);
+                    console.log(Q); */
 
 
 
-                    //let heightHolder = 0;
-                    //let height = heightAdderFunct(targetNode, heightHolder);
+                    let heightHolder = 0;
+                    let height = heightAdderFunct(targetNode, heightHolder);
                     //console.log(height);
-                    //return height;
+                    return height;
                 }
             }
 
             heightAdderFunct = (node, heightHolder) => {//AKA counting "deepest" # of children
                 //node = targetNode
                 console.log(node);
-                console.log("heightHolder is: ", heightHolder, "for target");
+                console.log("heightHolder is: ", heightHolder, "for target");//don't even heightHolder
 
                 if (node.right === null && node.left === null) {
                     console.log("Hit a dead end leaf");
                     return heightHolder;
                 } else {
-                    heightHolder++;
+                    let leftHeight = rightHeight = 0;
                     if (node.left) {//there is a child node to left
-                        
-                        heightAdderFunct(node.left, heightHolder);
+                        leftHeight = heightAdderFunct(node.left, heightHolder);
+                        leftHeight++;
                     }
                     if (node.right) {//child node to right
-        
-                        heightAdderFunct(node.right, heightHolder);
-                    } 
+                        rightHeight = heightAdderFunct(node.right, heightHolder);
+                        rightHeight++;
+                    }
+                    //have two possible heights
+                    //pick the higher one
+                    console.log("for node " + node.value + " left & right respectively is " + 
+                    leftHeight + " " + rightHeight);
+                    if (rightHeight > leftHeight) {
+                        return rightHeight
+                    } else {
+                        return leftHeight
+                    }
                 }
-                console.log("End heightHolder is: ", heightHolder);
-                return heightHolder;
             }
 
             
@@ -625,8 +632,7 @@
         console.log(test.root);
         prettyPrint(test.root);
 
-        heightOfNodeOfVal(25);
-        //console.log("height of node val is: ", heightOfNodeOfVal(25));
+        console.log("height of node val is: ", heightOfNodeOfVal(25));
 
 
         //insertValue(9); //will not add duplicates; adds as leaf
