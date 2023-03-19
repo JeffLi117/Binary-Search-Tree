@@ -98,6 +98,8 @@
             this.nodeHolder1 = null; //type Node
             this.nodeHolder2 = null; //type Node
             this.nodeHolder3 = null; //type Node
+            this.nodeHolder4 = null; //type Node
+            this.successorValue = null; //type Node
             this.boolean = null;
             this.buildTree = (x) => {
                 //[2,5,6,2,25,13]
@@ -236,32 +238,6 @@
             //when searching for node, write so that before another recursion occurs
             //check the value of node.left/.right and see if it matches...?
 
-            removeLeaf = (node, input) => {//jank code with a lot of if/else's
-                console.log(node);
-                if (node.value > input) {//input smaller, go left
-                    //node.left = removeLeaf(node.left, input);
-                    if (node.left === null) {
-                        console.log("This value does not exist within the tree");
-                    } else if (node.left.value === input) {
-                        console.log("Found the value!");
-                        node.left = null;
-                    } else {
-                        node.left = removeLeaf(node.left, input);
-                    }                    
-                } else if (node.value < input) {//input larger, go right
-                    //node.right = removeLeaf(node.right, input);
-                    if (node.right === null) {
-                        console.log("This value does not exist within the tree");
-                    } else if (node.right.value === input) {
-                        console.log("Found the value!");
-                        node.right = null;
-                    } else {
-                        node.right = removeLeaf(node.right, input);
-                    }   
-                } 
-                return node;
-            }
-
             /*Write delete function which accepts a value to delete 
             (you’ll have to deal with several USE CASES for delete -- 
             such as when a node has children or not).*/
@@ -272,14 +248,78 @@
                     //ex: delete 13 (NOT a leaf)
                     //ex: delete 25 (a leaf)
                     let startNode = this.root;
-                    //removeLeaf(startNode, value);
-                    removeAlgo(startNode, value);
+                    let valueNode = findNode(value);//the node which I want to delete
+
+                    if (valueNode.right !== null && valueNode.left !== null) {//2 child leaves present
+                        //need to find inOrder successor
+                        //case 1: target (to be deleted) node to be removed HAS .right
+                        //search for leftmose (smallest) node in that .right OR find min (maybe use a fxn?)
+                        //case 2: no .right
+                        //go to nearest ancestor (above target node) in which target node is in their .left 
+                        //Copy contents of the inorder successor to the node and delete the inorder successor
+
+                        //currently deleting node val 3
+                        let successor = findSuccessorInOrder(valueNode);
+                        console.log("Got to 2 child leaf scenario");
+                        console.log("The result of findSuccessor is: ", successor);
+                        this.successorValue = successor.value;
+                        removeAlgo(startNode, successor.value);//when in case1 of findSuccessorInOrder, 
+                        valueNode.value = this.successorValue;//will only be at MOST 1 child (since it's the left-most node of R subtree)
+                        
+                        //need to "cut off" the tie of previous "parent" of the new successor
+
+                        /* this.nodeHolder2 = node;
+                        this.nodeHolder3 = node.left;//assuming tree is balanced, L < R
+                        this.nodeHolder4 = node.right;
+                        return; */
+                    } else {//all other scenarios
+                        removeAlgo(startNode, value);
+                    }
                 }
                 
             }
 
+            findSuccessorInOrder = (node) => {
+                if (node.right) {//if tree is BALANCED, it will always be this I think
+                    return findMinimum(node.right);
+                } else {
+                    return findNearestAncestor(node);
+                }
+            }
+
+            findMinimum = (node) => {//finds min node within that node's tree
+                //input node is start point
+                //go until final node.left === null
+                //return said node
+                if (node.left === null) {
+                    //console.log("no more left to go");
+                    return node;
+                } else {
+                    let result = findMinimum(node.left);
+                    return result;
+                }
+            }
+
+            findNearestAncestor = (targetNode) => {//input start & target, return ancestor
+                let successorNode = null;
+
+                let ancestorNode = this.root;
+
+                while (ancestorNode !== targetNode) {
+                    if (targetNode.value < ancestorNode.value) {
+                        successorNode = ancestorNode;
+                        ancestorNode = ancestorNode.left;
+                        console.log("NEW successorNode is: ", successorNode);
+                        console.log("ancestorNode is: ", ancestorNode);
+                    } else {
+                        ancestorNode = ancestorNode.right;
+                    }
+                }
+                return successorNode;
+            }
+
             removeAlgo = (node, input) => {
-                //for leaf
+                //if it's a leaf or has 1 child
                 //BASE CASE, ideally, is when recursion has gotten to node.value === input
                 //can make that base case return null
                 //for non-leaf scenarios: BASE CASE is same
@@ -292,7 +332,7 @@
                     return null;
                 } else if (node.value === input) {
                     if (node.right === null && node.left === null) {//there are NO children; leaf node scenario
-                        console.log("Hit base case");
+                        //console.log("Hit base case");
                         return null;
                     } else if (node.right !== null) {//1 right child leaf present
                         this.nodeHolder2 = node;
@@ -305,41 +345,38 @@
                     }
                 } else if (node.value > input) {//input smaller, go left
                     if (node.left.value === input) {
-                        console.log("nodeHolder 1 set here");
+                        //console.log("nodeHolder 1 set here");
                         this.nodeHolder1 = node;
                     }
-                    node.left = removeAlgo(node.left, input);
-                    /* if (node.left === null) {
-                        console.log("This value does not exist within the tree");
-                    } else if (node.left.value === input) {
-                        console.log("Found the value!");
-                        node.left = null;
-                    } else {
-                        node.left = removeLeaf(node.left, input);
-                    }       */              
+                    node.left = removeAlgo(node.left, input);             
                 } else if (node.value < input) {//input larger, go right
                     if (node.right.value === input) {
-                        console.log("nodeHolder 1 set here");
+                        //console.log("nodeHolder 1 set here");
                         this.nodeHolder1 = node;
                     }
                     node.right = removeAlgo(node.right, input);
-                    
-                    
-                    /* if (node.right === null) {
-                        console.log("This value does not exist within the tree");
-                    } else if (node.right.value === input) {
-                        console.log("Found the value!");
-                        node.right = null;
-                    } else {
-                        node.right = removeLeaf(node.right, input);
-                    }    */
                 } 
                 
-                console.log(this.nodeHolder1);
+                /* console.log(this.nodeHolder1);
                 console.log(this.nodeHolder2);
                 console.log(this.nodeHolder3);
+                console.log(this.nodeHolder4); */
 
-                if (node === this.nodeHolder1 && (this.nodeHolder2 !== null && this.nodeHolder3 !== null)) {
+                /* if (node === this.nodeHolder1 && (this.nodeHolder2 !== null && this.nodeHolder3 !== null) && this.nodeHolder4 !== null) {
+                    //makes sure that nodeHolders 2 through 4 are assigned
+                    //means that the algorithm went through scenario of TWO children
+                    //whatever "fills" the gap of the target should be the next in-order (aka SORTED) 
+                    if (this.nodeHolder1.value < this.nodeHolder2.value) {//these if/else statements show whether to go L or R of nodeHolder1
+                        this.nodeHolder1.right = this.nodeHolder3;//sets .right to skip node2 and go to 3, whose value is < that of node 4
+                        if (this.nodeHolder3.left !== null) {//if new node (in deleted space) has 
+
+                        }
+                        this.nodeHolder3.right = this.nodeHolder4;//new node (in deleted space) .right set to it's "sibling" child 
+                    } else {
+                        this.nodeHolder1.left = this.nodeHolder3;
+                        this.nodeHolder3.right = this.nodeHolder4;
+                    }
+                } else  */if (node === this.nodeHolder1 && (this.nodeHolder2 !== null && this.nodeHolder3 !== null)) {
                     //makes sure that nodeHolders 2 & 3 are assigned
                     //means that the algorithm went through scenario of 1 child leaf (target node 2 sandwiched)
                     if (this.nodeHolder1.value < this.nodeHolder2.value) {
@@ -430,6 +467,16 @@
             //start @ root node
             //find height of L subtree
             //find height of R subtree
+
+            rebalance = () => {
+                if (isItBalanced()) {
+                    console.log("Tree is already balanced!");
+                    return;
+                } else {
+                    let newArray = inOrder();
+                    this.buildTree(newArray);
+                }
+            }
 
             heightOfNodeOfVal = (nodeValue) => {
                 console.log("nodeValue is: ", nodeValue);
@@ -657,25 +704,58 @@
             }
 
         }
-        
-        const testArray = [2,5,6,8,99,2,25,13,42];
-        const test = new Tree();
-        test.buildTree(testArray);
-        /* console.log(test.root);
-        prettyPrint(test.root); */
 
+        function getRandomArbitrary() {
+            return Math.floor(Math.random() * (100 - 200) + 100);
+        }
+
+
+        function runTreeTest() {
+            let randomNums = [...Array(15)].map(_=>Math.ceil(Math.random()*40));
+            console.log(randomNums);
+            const test = new Tree();
+            test.buildTree(randomNums);
+            prettyPrint(test.root);
+            console.log(test.root);
+            console.log("is the tree balanced? ", isItBalanced());
+            console.log("in PRE: ", preOrder());
+            console.log("in IN: ", inOrder());
+            console.log("in POST: ", postOrder());
+            insertValue(getRandomArbitrary());
+            insertValue(getRandomArbitrary());
+            insertValue(getRandomArbitrary());
+            insertValue(getRandomArbitrary());
+            console.log("done inserting random numbers");
+            prettyPrint(test.root);
+            console.log("is the tree balanced? ", isItBalanced());
+            console.log("now to REBALANCE");
+            rebalance();
+            console.log("NOW is the tree balanced??? ", isItBalanced());
+            console.log("in PRE: ", preOrder());
+            console.log("in IN: ", inOrder());
+            console.log("in POST: ", postOrder());
+            prettyPrint(test.root);
+        }
+
+        runTreeTest();
+        /* const testArray = [2,1,6,19,23,11,13,4,24,99,2,10,12,9,42];
+        const test = new Tree();
+        test.buildTree(testArray); */
+
+        /* prettyPrint(test.root);
+        console.log(test.root); */
         //console.log("height of node val is: ", heightOfNodeOfVal(25));
         //insertValue(101); //will not add duplicates; adds as leaf
-        insertValue(1);
-        /* insertValue(7);
-        insertValue(33);
-        insertValue(14); */
-        console.log(isItBalanced());
-
         
         //console.log("depth of node val is: ", depthOfNodeOfVal(6));
         //console.log(checkIfPresent(25)); //returns a boolean true/false
-        //deleteValue(13); //currently code will break if val here is NOT within tree
+
+        /* let testNode = findNode(2);
+        console.log("min within testNode is: ", findMinimum(testNode)); */
+        /* let testSuccessor = findNode(1); //findNearestAncestor is for when there is NOT a .right subtree
+        console.log("the successor for node w/ val of 1 is: ", findNearestAncestor(testSuccessor)); */
+
+        //deleteValue(11); //currently code will break if val here is NOT within tree
         
         //console.log(findNode(13)); //returns node with inputted value or undefined if not there
         //console.log(levelOrder());
@@ -684,8 +764,13 @@
         //console.log(inOrder());//inOrder algo to apply fxn; if no fxn, return AoV **will be SORTED order
         //postOrder(testFunctionConsoleSelf)
         //console.log(postOrder(testFunctionConsoleSelf));//postOrder algo to apply fxn; if no fxn, return AoV
-        prettyPrint(test.root);
-        console.log(test.root);
+        /* prettyPrint(test.root);
+        console.log(test.root); */
+
+        //console.log("is the tree balanced? ", isItBalanced());
+        //rebalance();
+
+        
     </script>
 </body>
 </html>
