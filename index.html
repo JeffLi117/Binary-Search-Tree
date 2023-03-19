@@ -152,7 +152,7 @@
                 //and set respective .left/.right to newNode
                 if (node === null) {//reached empty
                     let newNode = new Node(input);
-                    console.log("reached null, return");
+                    //console.log("reached null, return");
                     return newNode;
                 } else if (node.value === input) {
                     console.log("Cannot add value as value already exists within tree");
@@ -387,6 +387,46 @@
                 let queueArray = [];
                 return createLevOrderQ(startNode, queueArray, somefunction);
             }
+            
+            isItBalanced = () => {//returns true if tree IS balanced, false if not
+                //start at root node
+                let startNode = this.root;
+
+                return balancedWithin(startNode);
+            }
+            
+            balancedWithin = (node) => {
+                console.log("Node in this iteration of balancedWithin is ", node);
+                //BASE CASE: When node does not have two subtrees to compare
+                if (node.right === null || node.left === null) {
+                    console.log("This node is missing a subtree (or two)");
+                    return true;
+                } else {
+                    //check height of startNode.left & startNode.right
+                    let leftHeight = heightAdderFunct(node.left);
+                    let rightHeight = heightAdderFunct(node.right);
+                    console.log("leftHeight is ", leftHeight);
+                    console.log("rightHeight is ", rightHeight);
+                    
+                    //if height difference is > 1, return false
+                    if ((Math.abs(leftHeight-rightHeight)) > 1) {
+                        console.log("This tree is unbalanced somewhere...");
+                        return false;
+                    } else {
+                        //if not, iterate down each child node repeatedly to see if that child's substrees are balanced
+                        //only want to iterate until there is a node + .right + .left subtrees
+                        if (balancedWithin(node.left) === true && balancedWithin(node.right) === true) {
+                            return true;
+                        } else {
+                            return false;
+                        }
+                        /* balancedWithin(node.left);
+                        balancedWithin(node.right);
+                        return true; */
+                    }
+                }
+            }
+            
             //start @ root node
             //find height of L subtree
             //find height of R subtree
@@ -402,42 +442,34 @@
                     let startNode = this.root;
                     //set targetNode
                     let targetNode = whichNode(startNode, nodeValue); //returns node matching inputted value
-                    //set heightValHolder
-                    /* 
-                    let Q = createLevOrder();//creates Q of breadth-first traversal
-                    console.log(Q); */
 
-
-
-                    let heightHolder = 0;
-                    let height = heightAdderFunct(targetNode, heightHolder);
+                    let height = heightAdderFunct(targetNode);
                     //console.log(height);
                     return height;
                 }
             }
 
-            heightAdderFunct = (node, heightHolder) => {//AKA counting "deepest" # of children
+            heightAdderFunct = (node) => {//AKA counting "deepest" # of children
                 //node = targetNode
-                console.log(node);
-                console.log("heightHolder is: ", heightHolder, "for target");//don't even heightHolder
+                //console.log(node);
 
                 if (node.right === null && node.left === null) {
-                    console.log("Hit a dead end leaf");
-                    return heightHolder;
+                    //console.log("Hit a dead end leaf");
+                    return 0;
                 } else {
                     let leftHeight = rightHeight = 0;
                     if (node.left) {//there is a child node to left
-                        leftHeight = heightAdderFunct(node.left, heightHolder);
+                        leftHeight = heightAdderFunct(node.left);
                         leftHeight++;
                     }
                     if (node.right) {//child node to right
-                        rightHeight = heightAdderFunct(node.right, heightHolder);
+                        rightHeight = heightAdderFunct(node.right);
                         rightHeight++;
                     }
                     //have two possible heights
                     //pick the higher one
-                    console.log("for node " + node.value + " left & right respectively is " + 
-                    leftHeight + " " + rightHeight);
+                    /* console.log("for node " + node.value + " left & right respectively is " + 
+                    leftHeight + " " + rightHeight); */
                     if (rightHeight > leftHeight) {
                         return rightHeight
                     } else {
@@ -629,13 +661,18 @@
         const testArray = [2,5,6,8,99,2,25,13,42];
         const test = new Tree();
         test.buildTree(testArray);
-        console.log(test.root);
-        prettyPrint(test.root);
+        /* console.log(test.root);
+        prettyPrint(test.root); */
 
-        console.log("height of node val is: ", heightOfNodeOfVal(25));
+        //console.log("height of node val is: ", heightOfNodeOfVal(25));
+        //insertValue(101); //will not add duplicates; adds as leaf
+        insertValue(1);
+        /* insertValue(7);
+        insertValue(33);
+        insertValue(14); */
+        console.log(isItBalanced());
 
-
-        //insertValue(9); //will not add duplicates; adds as leaf
+        
         //console.log("depth of node val is: ", depthOfNodeOfVal(6));
         //console.log(checkIfPresent(25)); //returns a boolean true/false
         //deleteValue(13); //currently code will break if val here is NOT within tree
@@ -647,8 +684,8 @@
         //console.log(inOrder());//inOrder algo to apply fxn; if no fxn, return AoV **will be SORTED order
         //postOrder(testFunctionConsoleSelf)
         //console.log(postOrder(testFunctionConsoleSelf));//postOrder algo to apply fxn; if no fxn, return AoV
-        /* prettyPrint(test.root);
-        console.log(test.root); */
+        prettyPrint(test.root);
+        console.log(test.root);
     </script>
 </body>
 </html>
